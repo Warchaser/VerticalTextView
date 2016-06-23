@@ -22,7 +22,7 @@ public class MainActivity extends Activity
         mTextView1 = (VerticalTextView) findViewById(R.id.text1);
         mTextView2 = (VerticalTextView) findViewById(R.id.text2);
 //
-        mTextView1.setText(getResources().getString(R.string.test_string2));
+        mTextView1.setText(getResources().getString(R.string.test_string));
         mTextView2.setText(getResources().getString(R.string.test_string1));
 
     }

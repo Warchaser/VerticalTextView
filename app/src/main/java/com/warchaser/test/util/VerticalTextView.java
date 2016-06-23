@@ -28,8 +28,10 @@ public class VerticalTextView extends TextView {
     private int oldwidth = 0;//存储久的width
 
     private int mTextColor = 0;
+    private int mDefaultTextColor = Color.BLACK;
 
     private int mMaxLength = 20;
+    private int mDefaultMaxLength = 100;
 
     private String mText = "";//待显示的文字
     private Handler mHandler = null;
@@ -48,21 +50,13 @@ public class VerticalTextView extends TextView {
 
         String nameSpace = "http://schemas.android.com/apk/res/android";
 
-        mTextColor = attrs.getAttributeIntValue(nameSpace, "textColor", Color.BLACK);
+        mTextColor = attrs.getAttributeIntValue(nameSpace, "textColor", mDefaultTextColor);
 //        mFontSize = attrs.getAttributeIntValue(nameSpace, "textSize", 24);
 //        mMaxHeight = attrs.getAttributeValue(nameSpace, "maxHeight");
 
-        mMaxLength =  attrs.getAttributeIntValue(nameSpace, "maxLength", 20);
+        mMaxLength =  attrs.getAttributeIntValue(nameSpace, "maxLength", mDefaultMaxLength);
 
-        try
-        {
-//            mFontSize = Float.parseFloat(attrs.getAttributeValue(nameSpace, "textSize"));//获取字体大小属性
-            mFontSize = getTextSize();
-        }
-        catch (Exception e)
-        {
-
-        }
+        mFontSize = getTextSize();
 
         matrix = new Matrix();
         paint = new Paint();//新建画笔
@@ -71,7 +65,6 @@ public class VerticalTextView extends TextView {
         paint.setColor(mTextColor);//默认文字颜色
 
         this.TextLength = mText.length();
-//        if (mTextHeight > 0) GetTextInfo();
 
     }
 
@@ -148,6 +141,7 @@ public class VerticalTextView extends TextView {
     protected void onDraw(Canvas canvas)
     {
         super.onDraw(canvas);
+
         if (drawable != null)
         {
             //画背景
@@ -193,7 +187,7 @@ public class VerticalTextView extends TextView {
             }
             else
             {
-                if (mTextPosy >= this.mTextHeight)
+                if (mTextPosy + mLineWidth >= this.mTextHeight && !"》".equals(String.valueOf(ch)))
                 {
                     if (textStartAlign == Paint.Align.LEFT)
                     {
@@ -260,9 +254,7 @@ public class VerticalTextView extends TextView {
         //获得字宽
         if (mLineWidth == 0)
         {
-            float[] widths = new float[1];
-            paint.getTextWidths("正", widths);//获取单个汉字的宽度
-            mLineWidth = (int) Math.ceil(widths[0] * 1.1 + 2);
+            mLineWidth = (int)mFontSize;
         }
 
         Paint.FontMetrics fm = paint.getFontMetrics();
@@ -299,7 +291,6 @@ public class VerticalTextView extends TextView {
         mRealLine++;
 
         mTextWidth = mLineWidth * mRealLine;//计算文字总宽度
-        mTextHeight = mFontHeight * TextLength;//计算文字总高度
 
         if(mTextHeight >= getHeight())
         {
@@ -314,7 +305,8 @@ public class VerticalTextView extends TextView {
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec)
     {
         System.out.println("onMeasure");
-        int measuredHeight = measureHeight(heightMeasureSpec);
+        measureHeight(heightMeasureSpec);
+
         //int measuredWidth = measureWidth(widthMeasureSpec);
         if (mTextWidth == 0) GetTextInfo();
         setMeasuredDimension(mTextWidth, mTextHeight);
@@ -330,14 +322,19 @@ public class VerticalTextView extends TextView {
         int specMode = MeasureSpec.getMode(measureSpec);
         int specSize = MeasureSpec.getSize(measureSpec);
         int result = 500;
-        if (specMode == MeasureSpec.AT_MOST)
+        switch (specMode)
         {
-            result = specSize;
+            case MeasureSpec.AT_MOST:
+                result = specSize;
+                break;
+            case MeasureSpec.EXACTLY:
+                result = specSize;
+                break;
+            case MeasureSpec.UNSPECIFIED:
+                result = 500;
+                break;
         }
-        else if (specMode == MeasureSpec.EXACTLY)
-        {
-            result = specSize;
-        }
+
         mTextHeight = result;//设置文本高度
         return result;
     }
