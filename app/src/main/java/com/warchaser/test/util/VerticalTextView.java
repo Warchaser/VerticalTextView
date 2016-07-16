@@ -168,6 +168,9 @@ public class VerticalTextView extends TextView {
 
         theText = mText;
 
+        float textWidths[] = new float[theText.length()];
+        paint.getTextWidths(theText, textWidths);
+
         mTextPosx = textStartAlign == Paint.Align.LEFT ? mLineWidth : mTextWidth - mLineWidth;//初始化x坐标
         mTextPosx -= mFontHeight * (0.5 * mRealLine);
         for (int i = 0; i < this.TextLength; i++)
@@ -206,7 +209,7 @@ public class VerticalTextView extends TextView {
 
                     if(!isChinese(ch))
                     {
-                        bitmap = mGLFont.getImage(mFontHeight, mTextWidth, String.valueOf(ch), (int)mFontSize, mTextColor);
+                        bitmap = mGLFont.getImage((int)textWidths[i], mTextWidth, String.valueOf(ch), (int)mFontSize, mTextColor);
 
                         Matrix matrix = new Matrix();
                         matrix.postRotate(90);
@@ -214,12 +217,12 @@ public class VerticalTextView extends TextView {
                     }
                     else
                     {
-                        bitmap = mGLFont.getImage(mTextWidth, mFontHeight, String.valueOf(ch), (int)mFontSize, mTextColor);
+                        bitmap = mGLFont.getImage(mTextWidth, (int)textWidths[i], String.valueOf(ch), (int)mFontSize, mTextColor);
                     }
 
                     canvas.drawBitmap(bitmap, mTextPosx, mTextPosy, paint);
                     bitmap.recycle();
-                    mTextPosy += mLineWidth;
+                    mTextPosy += (int)textWidths[i];
                 }
             }
         }
